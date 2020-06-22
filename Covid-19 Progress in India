@@ -1,0 +1,37 @@
+import matplotlib as mpl
+import pandas as pd
+import matplotlib.pyplot as plt
+
+df = pd.read_csv('Links/WHO-COVID-19-global-data.csv')
+
+df
+ch = df[df['Country'] == 'China']
+ind = df[df['Country'] == 'India']
+am =  df[df['Country'] == 'United States of America']
+it = df[df['Country'] == 'Italy']
+ch['Date_Reported'] = ch['Date_reported'].apply(lambda x:x[:10])
+ind['Date_Reported'] = ind['Date_reported'].apply(lambda x:x[:10])
+am['Date_Reported'] = am['Date_reported'].apply(lambda x:x[:10])
+it['Date_Reported'] = it['Date_reported'].apply(lambda x:x[:10])
+
+cols_to_keep = ['Date_Reported','Country','Cumulative_cases']
+ind = ind[cols_to_keep].rename(columns={'Cumulative_cases':'Indian Cases'})
+ch = ch[cols_to_keep].rename(columns={'Cumulative_cases':'China Cases'})
+am = am[cols_to_keep].rename(columns={'Cumulative_cases':'American Cases'})
+it = it[cols_to_keep].rename(columns={'Cumulative_cases':'Italy Cases'})
+comb = pd.merge(ind.reset_index(),ch.reset_index(),on='Date_Reported',left_index=True)
+comb1 = pd.merge(comb.reset_index(),am.reset_index(),on='Date_Reported',left_index=True)
+comb2 = pd.merge(comb1.reset_index(),it.reset_index(),on='Date_Reported',left_index=True)
+plt.figure(figsize=(10,10))
+plt.plot(comb2['Indian Cases'],c='b',label = 'India')
+plt.plot(comb2['China Cases'],c='r',label = 'China')
+plt.plot(comb2['American Cases'],c='g',label='United States of America')
+plt.plot(comb2['Italy Cases'],c='y',label='Italy')
+plt.legend(fontsize=18,frameon=False)
+plt.gca().spines['top'].set_visible(False)
+plt.gca().spines['right'].set_visible(False)
+plt.xlabel('No of days since 1st case in India',fontsize=20)
+plt.ylabel('Total No of Cases',fontsize = 20)
+plt.title('Growth of no of Covid-19 Cases in India',fontsize=25)
+
+plt.show()
